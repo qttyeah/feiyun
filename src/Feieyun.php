@@ -33,7 +33,7 @@ class Feieyun
     public function __construct()
     {
         header("Content-type: text/html; charset=utf-8");
-		echo 1;die;
+		echo 21;die;
 //        $this->printerAddlist();
     }
 
