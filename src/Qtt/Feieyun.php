@@ -1,4 +1,5 @@
 <?php
+namespace Qtt
 
 class Feieyun
 {
