@@ -1,0 +1,22 @@
+{
+    "name": "qttyeah/feiyun",
+    "description": "Moth cloud printing test",
+    "type": "tp6",
+    "keywords": [
+        "feieyun",
+        "thinkphp6"
+    ],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "qttyeah",
+            "email": "15213725562@qq.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "qttyeah\\feiyun\\": "src"
+        }
+    }
+}
