@@ -1,7 +1,5 @@
 <?php
 
-namespace app\common;
-
 /**
  * Created by PhpStorm.
  * User: 15213
