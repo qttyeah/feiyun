@@ -1,5 +1,5 @@
 <?php
-namespace Qtt
+namespace Qtt;
 /**
  * Created by PhpStorm.
  * User: 15213
