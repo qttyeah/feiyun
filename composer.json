@@ -13,7 +13,7 @@
     "require": {},
 	"autoload": {
         "psr-4": {
-            "qttyeah\\feiyun\\": "src"
+            "Qttyeah\\Feiyun\\": "src"
         }
     }
 }
