@@ -1,5 +1,5 @@
 <?php
-namespace qttyeah\feiyun\Qtt;
+namespace Qttyeah\Feiyun;
 
 class Feieyun
 {
@@ -30,21 +30,26 @@ class Feieyun
     /**
      * 设置公共函数
      * Feieyun constructor.
+     * @param $config
      */
-    public function __construct()
+    public function __construct($config)
     {
+        $this->_user = $config['user'];
+        $this->_ukey = $config['ukey'];
         header("Content-type: text/html; charset=utf-8");
-		echo 21;die;
+
 //        $this->printerAddlist();
     }
 
     /**
      * 批量添加打印机
+     * @param $printers
+     * @return string
      */
-    public function printerAddlist()
+    public function printerAddlist($printers)
     {
         $printerContent = "";
-        foreach ($this->_printer as $value) {
+        foreach ($printers as $value) {
             if (!empty($printerContent)) {
                 $printerContent = "\n";
             }

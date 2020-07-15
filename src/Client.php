@@ -1,12 +1,12 @@
 <?php
-namespace Qtt;
+namespace Qttyeah\Feiyun;
 /**
  * Created by PhpStorm.
  * User: 15213
  * Date: 2020/7/14
  * Time: 10:32
  */
-class HttpClient
+class Client
 {
     // Request vars
     var $host;
@@ -96,8 +96,6 @@ class HttpClient
                     $this->errormsg .= ' ' . $errstr;
                     $this->debug($this->errormsg);
             }
-            echo $errstr;
-            die;
             return false;
         }
         socket_set_timeout($fp, $this->timeout);
@@ -327,7 +325,7 @@ class HttpClient
         if (isset($bits['query'])) {
             $path .= '?' . $bits['query'];
         }
-        $client = new HttpClient($host, $port);
+        $client = new Client($host, $port);
         if (!$client->get($path)) {
             return false;
         } else {
@@ -341,7 +339,7 @@ class HttpClient
         $host = $bits['host'];
         $port = isset($bits['port']) ? $bits['port'] : 80;
         $path = isset($bits['path']) ? $bits['path'] : '/';
-        $client = new HttpClient($host, $port);
+        $client = new Client($host, $port);
         if (!$client->post($path, $data)) {
             return false;
         } else {
