@@ -3,7 +3,6 @@ namespace Qttyeah\Feiyun;
 
 class Feieyun
 {
-
     private $_user = 'your user';
 
     private $_ukey = 'your ukey';
@@ -26,6 +25,11 @@ class Feieyun
             'phone' => '17788888888',
         ]
     ];
+    /**
+     * 请求数据
+     * @var array
+     */
+    public $msgInfo = [];
 
     /**
      * 设置公共函数
@@ -34,9 +38,15 @@ class Feieyun
      */
     public function __construct($config)
     {
+        header("Content-type: text/html; charset=utf-8");
         $this->_user = $config['user'];
         $this->_ukey = $config['ukey'];
-        header("Content-type: text/html; charset=utf-8");
+        $time = time();
+        $this->msgInfo = [
+            'user' => $this->_user,
+            'stime' => $time,
+            'sig' => $this->signature($time)
+        ];
 
 //        $this->printerAddlist();
     }
@@ -46,7 +56,7 @@ class Feieyun
      * @param $printers
      * @return string
      */
-    public function printerAddlist($printers)
+    public function printerAddlists($printers)
     {
         $printerContent = "";
         foreach ($printers as $value) {
@@ -55,104 +65,56 @@ class Feieyun
             }
             $printerContent .= implode('#', $value);
         }
-        $time = time();         //请求时间
-        $msgInfo = [
-            'user' => $this->_user,
-            'stime' => $time,
-            'sig' => $this->signature($time),
-            'apiname' => 'Open_printerAddlist',
-            'printerContent' => $printerContent
-        ];
-        return $this->getResult($msgInfo);
+        $this->msgInfo['apiname'] = 'Open_printerAddlist';
+        $this->msgInfo['printerContent'] = $printerContent;
+        return $this->getResult();
+    }
+
+    /**
+     * 添加一个打印机
+     * @param $printers
+     * @return string
+     */
+    public function printerAddlist($printers)
+    {
+        $printerContent = implode('#', $printers);
+        $this->msgInfo['apiname'] = 'Open_printerAddlist';
+        $this->msgInfo['printerContent'] = $printerContent;
+        return $this->getResult();
     }
 
     /**
      * 打印订单小票
      * @param int $sn 打印机编号id
-     * @param array $params 打印内容  title:标题 table：标题 con :数组 内容；remark:数组 备注；total:合计金额；
+     * @param array $content 打印内容  title:标题 table：标题 con :数组 内容；remark:数组 备注；total:合计金额；
      *                                  address：地址 tel:联系电话；times:订餐时间 code:扫码地址
      * @param int $times 打印联数
      * @return string
      */
-    function printMsg($params = [], $sn = 1, $times = 1)
+    function printMsg($content = [], $sn = 1, $times = 1)
     {
-        if (empty($params)) $this->returnErr();
-        $content = "";
-        if (empty($params['title'])) $this->returnErr();
-        $content .= "<CB>" . $params['title'] . "</CB><BR>";
-        if (empty($params['table']) || empty($params['con'])) $this->returnErr();
-        $content .= $params['table'] . "<BR>";
-        $content .= "--------------------------------<BR>";
-        foreach ($params['con'] as $v) {
-            $content .= $v . "<BR>";
-        }
-        $content .= "--------------------------------<BR>";
-        if (!empty($params['remark'])) {
-            foreach ($params['remark'] as $v) {
-                $content .= "备注：" . $v . "<BR>";
-            }
-        }
-        if (!empty($params['total'])) {
-            $content .= "合计：" . $params['total'] . "<BR>";
-        }
-        if (!empty($params['address'])) {
-            $content .= "地址：" . $params['address'] . "<BR>";
-        }
-        if (!empty($params['tel'])) {
-            $content .= "联系电话：" . $params['tel'] . "<BR>";
-        }
-        if (!empty($params['times'])) {
-            $content .= "营业电话：" . $params['times'] . "<BR>";
-        }
-        if (!empty($params['code'])) {
-            //二维码
-            $content .= "<QR" . $params['code'] . "</QR>";
-        }
+        $this->msgInfo['apiname'] = 'Open_printMsg';
+        $this->msgInfo['sn'] = $sn;
+        $this->msgInfo['content'] = $content;
+        $this->msgInfo['times'] = $times;
 
-        $time = time();         //请求时间
-        $msgInfo = array(
-            'user' => $this->_user,
-            'stime' => $time,
-            'sig' => $this->signature($time),
-            'apiname' => 'Open_printMsg',
-            'sn' => $this->_printer[$sn]['sn'],
-            'content' => $content,
-            'times' => $times
-        );
-        return $this->getResult($msgInfo);
+        return $this->getResult();
     }
 
     /**
      * 打印标签
      * @param int $sn
-     * @param array $params num:序号 number：桌号 con:名称 name:备注人 phone:联系方式
+     * @param array $content
      * @param int $times
      * @return string
      */
-    function printLabelMsg($params = [], $sn = 1, $times = 1)
+    function printLabelMsg($content = [], $sn = 1, $times = 1)
     {
-        if (empty($params) || !isset($params['num'])) return $this->returnErr();
-        if (!isset($params['number']) || !isset($params['con'])) return $this->returnErr();
-
-        //设定打印时出纸和打印字体的方向，n 0 或 1，每次设备重启后都会初始化为 0 值设置，1：正向出纸，0：反向出纸，
-        $content = "<DIRECTION>1</DIRECTION>";
-
-        $content .= "<TEXT x='9' y='10' font='12' w='1' h='2' r='0'>" . $params['num'] . "       " . $params['number'] . "</TEXT>";
-        $content .= "<TEXT x='80' y='80' font='12' w='2' h='2' r='0'>" . $params['con'] . " </TEXT>";
-        $content .= "<TEXT x='9' y='180' font='12' w='1' h='1' r='0'>" . $params['name'] . "       " . $params['phone'] . "</TEXT>";
-
-
-        $time = time();
-        $msgInfo = array(
-            'user' => $this->_user,
-            'stime' => $time,
-            'sig' => $this->signature($time),
-            'apiname' => 'Open_printLabelMsg',
-            'sn' => $this->_printer[$sn]['sn'],
-            'content' => $content,
-            'times' => $times
-        );
-        return $this->getResult($msgInfo);
+        $this->msgInfo['apiname'] = 'Open_printLabelMsg';
+        $this->msgInfo['sn'] = $sn;
+        $this->msgInfo['content'] = $content;
+        $this->msgInfo['times'] = $times;
+        return $this->getResult();
     }
 
     /**
@@ -168,13 +130,12 @@ class Feieyun
 
     /**
      * 获取结果
-     * @param $msgInfo
      * @return string
      */
-    private function getResult($msgInfo)
+    private function getResult()
     {
-        $client = new HttpClient($this->url, $this->port);
-        if (!$client->post($this->path, $msgInfo)) {
+        $client = new Client($this->url, $this->port);
+        if (!$client->post($this->path, $this->msgInfo)) {
             return ['code' => 0, 'msg' => $client->getError()];
         } else {
             return ['code' => 1, 'msg' => $client->getContent()];
@@ -189,7 +150,9 @@ class Feieyun
      */
     private function signature($time)
     {
-        return sha1($this->_user . $this->_ukey . $time);//公共参数，请求公钥
+        //公共参数，请求公钥
+        return sha1($this->_user . $this->_ukey . $time);
     }
+
 
 }
